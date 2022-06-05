@@ -39,6 +39,7 @@ const CoffeeStore = (props) => {
   if (router.isFallback) {
     return <div>Loading...</div>;
   }
+  console.log("propscoffeestore = ", props.coffeeStore);
   const { address, name, neighbourhood, imgUrl } = props.coffeeStore;
   const handleupvoteButton = () => {
     console.log("handle upvote");
@@ -53,7 +54,7 @@ const CoffeeStore = (props) => {
         <div className={styles.col1}>
           <div className={styles.backToHomeLink}>
             <Link href="/">
-              <a>Back to home</a>
+              <a>← Back to home</a>
             </Link>
           </div>
           <div className={styles.nameWrapper}>
@@ -79,22 +80,23 @@ const CoffeeStore = (props) => {
               height="24"
               alt=""
             />
-            <p className={styles.text}>{neighbourhood}</p>
-          </div>
-          <div className={styles.iconWrapper}>
-            <Image
-              src="/static/icons/nearMe.svg"
-              width="24"
-              height="24"
-              alt=""
-            />
             <p className={styles.text}>{address}</p>
           </div>
+          {neighbourhood && (
+            <div className={styles.iconWrapper}>
+              <Image
+                src="/static/icons/nearMe.svg"
+                width="24"
+                height="24"
+                alt=""
+              />
+              <p className={styles.text}>{neighbourhood}</p>
+            </div>
+          )}
           <div className={styles.iconWrapper}>
             <Image src="/static/icons/star.svg" width="24" height="24" alt="" />
             <p className={styles.text}>1</p>
           </div>
-
           <button className={styles.upvoteButton} onClick={handleupvoteButton}>
             Up vote!
           </button>
