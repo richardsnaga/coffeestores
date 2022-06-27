@@ -6,7 +6,7 @@ import Banner from "../component/banner";
 import Card from "../component/card";
 import { fetchCoffeeStores } from "../lib/coffee-stores";
 import useTrackLocation from "../hooks/use-track-location";
-import { ACTION_TYPES, StoreContext } from "../pages/_app";
+import { ACTION_TYPES, StoreContext } from "../store/store-context";
 
 export async function getStaticProps(context) {
   const coffeeStores = await fetchCoffeeStores();
@@ -36,22 +36,28 @@ export default function Home(props) {
     async function setCoffeeStoresByLocation() {
       if (latLong) {
         try {
-          const fetchedCoffeeStores = await fetchCoffeeStores(latLong, 30);
-          console.log("FETCHED = ", { fetchedCoffeeStores });
+          const response = await fetch(
+            `/api/getCoffeeStoresByLocation?latLong=${latLong}&limit=30`
+          );
+
+          const coffeeStores = await response.json();
+
           // setCoffeeStores(fetchedCoffeeStores);
           dispatch({
             type: ACTION_TYPES.SET_COFFEE_STORES,
-            payload: { coffeeStores: fetchedCoffeeStores },
+            payload: {
+              coffeeStores,
+            },
           });
-          // set coffe stores
+          setCoffeeStoresError("");
+          //set coffee stores
         } catch (error) {
           //set error
-          console.log(error);
+          console.error({ error });
           setCoffeeStoresError(error.message);
         }
       }
     }
-
     setCoffeeStoresByLocation();
   }, [dispatch, latLong]);
 
