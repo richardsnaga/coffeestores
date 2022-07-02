@@ -1,16 +1,13 @@
+import { useContext, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-
 import Head from "next/head";
-import styles from "../../styles/coffee-store.module.css";
 import Image from "next/image";
 import cls from "classname";
-
+import styles from "../../styles/coffee-store.module.css";
 import { fetchCoffeeStores } from "../../lib/coffee-stores";
-import { useContext, useState, useEffect } from "react";
 import { StoreContext } from "../../store/store-context";
 import { isEmpty } from "../../utils";
-
 export async function getStaticProps(staticProps) {
   const params = staticProps.params;
   console.log("params", params);
@@ -24,7 +21,6 @@ export async function getStaticProps(staticProps) {
     },
   };
 }
-
 export async function getStaticPaths() {
   const coffeeStores = await fetchCoffeeStores();
   const paths = coffeeStores.map((coffeeStore) => {
@@ -39,22 +35,39 @@ export async function getStaticPaths() {
     fallback: true,
   };
 }
-
 const CoffeeStore = (initialProps) => {
   const router = useRouter();
   if (router.isFallback) {
     return <div>Loading...</div>;
   }
-  console.log("propscoffeestore = ", initialProps.coffeeStore);
-
   const id = router.query.id;
-
   const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore);
-
   const {
     state: { coffeeStores },
   } = useContext(StoreContext);
-
+  const handleCreateCoffeeStore = async (coffeeStore) => {
+    try {
+      const { id, name, voting, imgUrl, neighbourhood, address } = coffeeStore;
+      const response = await fetch("/api/createCoffeeStore", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id,
+          name,
+          voting: 0,
+          imgUrl,
+          neighbourhood: neighbourhood || "",
+          address: address || "",
+        }),
+      });
+      const dbCoffeeStore = await response.json();
+      console.log({ dbCoffeeStore });
+    } catch (err) {
+      console.error("Error creating coffee store", err);
+    }
+  };
   useEffect(() => {
     if (isEmpty(initialProps.coffeeStore)) {
       if (coffeeStores.length > 0) {
@@ -62,15 +75,23 @@ const CoffeeStore = (initialProps) => {
           return coffeeStore.id.toString() === id; //dynamic id
         });
         setCoffeeStore(findCoffeeStoreById);
+        handleCreateCoffeeStore(findCoffeeStoreById);
       }
+    } else {
+      // SSG
+      handleCreateCoffeeStore(initialProps.coffeeStore);
     }
-  }, [id]);
+  }, [coffeeStores, id, initialProps.coffeeStore]);
 
-  const { address, name, neighbourhood, imgUrl } = initialProps.coffeeStore;
-  const handleupvoteButton = () => {
+  const { name, address, neighbourhood, imgUrl } = coffeeStore;
+
+  const [votingCount, setVotingCount] = useState(1);
+
+  const handleUpvoteButton = () => {
     console.log("handle upvote");
+    let count = votingCount + 1;
+    setVotingCount(count);
   };
-
   return (
     <div className={styles.layout}>
       <Head>
@@ -95,19 +116,20 @@ const CoffeeStore = (initialProps) => {
             height={360}
             className={styles.storeImg}
             alt={name}
-          ></Image>
+          />
         </div>
-
         <div className={cls("glass", styles.col2)}>
-          <div className={styles.iconWrapper}>
-            <Image
-              src="/static/icons/places.svg"
-              width="24"
-              height="24"
-              alt=""
-            />
-            <p className={styles.text}>{address}</p>
-          </div>
+          {address && (
+            <div className={styles.iconWrapper}>
+              <Image
+                src="/static/icons/places.svg"
+                width="24"
+                height="24"
+                alt=""
+              />
+              <p className={styles.text}>{address}</p>
+            </div>
+          )}
           {neighbourhood && (
             <div className={styles.iconWrapper}>
               <Image
@@ -121,9 +143,9 @@ const CoffeeStore = (initialProps) => {
           )}
           <div className={styles.iconWrapper}>
             <Image src="/static/icons/star.svg" width="24" height="24" alt="" />
-            <p className={styles.text}>1</p>
+            <p className={styles.text}>{votingCount}</p>
           </div>
-          <button className={styles.upvoteButton} onClick={handleupvoteButton}>
+          <button className={styles.upvoteButton} onClick={handleUpvoteButton}>
             Up vote!
           </button>
         </div>
@@ -131,5 +153,4 @@ const CoffeeStore = (initialProps) => {
     </div>
   );
 };
-
 export default CoffeeStore;
