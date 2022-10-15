@@ -1,3 +1,17 @@
+### Preview
+
+![pictureOne](/assets/ss3.png "pictureOne")
+
+This is the first page of this project. I made this project from udemy course name **Complete Next.js Developer in 2022: Zero to Mastery**. This project is use to find some coffee stores near us and rating them if you like the coffee stores. The current location that showing on the page are coffee stores near Toronto. Find out what happen when you click the **View stores nearby** button.
+
+![pictureTwo](/assets/ss1.png "pictureTwo")
+
+When you click the **View stores nearby** button. This page above will show you coffee stores near you.
+
+![pictureThree](/assets/ss2.png "pictureThree")
+
+If you click the picture, you will find the page like this. This page meant to raise the rating of the coffee store. If you open up in other browser, when you click **up Vote!** the rating will be raise in another browser too simultaneously.
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
